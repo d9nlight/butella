@@ -1,8 +1,14 @@
-/**
- * Telegram Bot Notification Service for BUTELLA Boutique
- */
+import { isSupabaseConfigured, getAdminClient } from "@/lib/supabase/admin";
 
-interface NewOrderNotificationData {
+interface OrderNotificationItem {
+  productName: string;
+  size: string;
+  color: string;
+  price: number;
+  quantity: number;
+}
+
+export interface NewOrderNotificationData {
   orderNumber: string;
   customerName: string;
   customerPhone: string;
@@ -10,15 +16,12 @@ interface NewOrderNotificationData {
   deliveryAddress?: string;
   comment?: string;
   totalAmount: number;
-  items: {
-    productName: string;
-    size: string;
-    color: string;
-    price: number;
-    quantity: number;
-  }[];
+  items: OrderNotificationItem[];
 }
 
+/**
+ * Sends a rich order notification message to the owner's Telegram with interactive action buttons.
+ */
 export async function notifyNewOrder(data: NewOrderNotificationData): Promise<boolean> {
   const token = process.env.TELEGRAM_BOT_TOKEN;
   const chatId = process.env.TELEGRAM_OWNER_CHAT_ID;
@@ -30,8 +33,8 @@ export async function notifyNewOrder(data: NewOrderNotificationData): Promise<bo
 
   const deliveryNames: Record<string, string> = {
     pickup: "Самовывоз из бутика (Кызылорда, ул. Абая 45)",
-    local: "Курьер по Кызылорде",
-    kazakhstan: "Доставка по Казахстану",
+    local: "Курьер по Кызылорде (день в день)",
+    kazakhstan: "Доставка по Казахстану (Казпочта/CDEK)",
   };
 
   const deliveryTitle = deliveryNames[data.deliveryMethod] || data.deliveryMethod;
@@ -39,7 +42,7 @@ export async function notifyNewOrder(data: NewOrderNotificationData): Promise<bo
   const itemsList = data.items
     .map(
       (item, idx) =>
-        `${idx + 1}. <b>${item.productName}</b>\n   Размер: <b>${item.size}</b> | Цвет: ${item.color}\n   ${item.quantity} шт. × ${item.price.toLocaleString("ru-KZ")} ₸`
+        `<b>${idx + 1}. ${item.productName}</b>\n   Размер: <code>${item.size}</code> | Цвет: ${item.color}\n   ${item.quantity} шт. × ${item.price.toLocaleString("ru-KZ")} ₸`
     )
     .join("\n\n");
 
@@ -47,43 +50,20 @@ export async function notifyNewOrder(data: NewOrderNotificationData): Promise<bo
 🛍 <b>НОВЫЙ ЗАКАЗ #${data.orderNumber}</b>
 ━━━━━━━━━━━━━━━━━━
 👤 <b>Покупатель:</b> ${data.customerName}
-📞 <b>Телефон:</b> ${data.customerPhone}
+📞 <b>Телефон:</b> <code>${data.customerPhone}</code>
 
-🚚 <b>Способ доставки:</b> ${deliveryTitle}
+🚚 <b>Доставка:</b> ${deliveryTitle}
 ${data.deliveryAddress ? `📍 <b>Адрес:</b> ${data.deliveryAddress}\n` : ""}${data.comment ? `💬 <b>Комментарий:</b> ${data.comment}\n` : ""}
-📦 <b>Товары:</b>
+📦 <b>Товары в заказе:</b>
 ${itemsList}
 
 ━━━━━━━━━━━━━━━━━━
-💰 <b>ИТОГО К ОПЛАТЕ:</b> <b>${data.totalAmount.toLocaleString("ru-KZ")} ₸</b>
-💳 <b>Оплата:</b> Kaspi (Ожидает подтверждения)
+💰 <b>СУММА:</b> <b>${data.totalAmount.toLocaleString("ru-KZ")} ₸</b>
+💳 <b>Оплата Kaspi:</b> 🟡 <i>Ожидает подтверждения</i>
+📋 <b>Статус заказа:</b> 🆕 <i>Новый</i>
 `.trim();
 
-  // Inline buttons for owner to control order status from Telegram
-  const inlineKeyboard = {
-    inline_keyboard: [
-      [
-        {
-          text: "✅ Оплата получена",
-          callback_data: `pay_${data.orderNumber}`,
-        },
-        {
-          text: "📦 В сборку",
-          callback_data: `proc_${data.orderNumber}`,
-        },
-      ],
-      [
-        {
-          text: "🚚 Отправлен",
-          callback_data: `ship_${data.orderNumber}`,
-        },
-        {
-          text: "❌ Отменить",
-          callback_data: `cancel_${data.orderNumber}`,
-        },
-      ],
-    ],
-  };
+  const inlineKeyboard = getOrderKeyboard(data.orderNumber, "PENDING", "NEW");
 
   try {
     const res = await fetch(`https://api.telegram.org/bot${token}/sendMessage`, {
@@ -97,9 +77,144 @@ ${itemsList}
       }),
     });
 
-    return res.ok;
+    if (!res.ok) {
+      const err = await res.json();
+      console.error("[Telegram] API error:", err);
+      return false;
+    }
+
+    return true;
   } catch (error) {
-    console.error("Failed to send Telegram notification:", error);
+    console.error("[Telegram] Send failed:", error);
     return false;
+  }
+}
+
+/**
+ * Returns inline buttons based on current order and payment status.
+ */
+export function getOrderKeyboard(
+  orderNumber: string,
+  paymentStatus: string,
+  orderStatus: string
+) {
+  const isPaid = paymentStatus === "PAID";
+  const isCancelled = orderStatus === "CANCELLED";
+  const isCompleted = orderStatus === "COMPLETED";
+
+  if (isCancelled) {
+    return {
+      inline_keyboard: [
+        [{ text: "🚫 Заказ отменен", callback_data: `info_${orderNumber}` }],
+      ],
+    };
+  }
+
+  if (isCompleted) {
+    return {
+      inline_keyboard: [
+        [{ text: "✅ Заказ выполнен и закрыт", callback_data: `info_${orderNumber}` }],
+      ],
+    };
+  }
+
+  const buttons = [];
+
+  // Row 1: Payment confirmation
+  if (!isPaid) {
+    buttons.push([
+      {
+        text: "✅ Подтвердить оплату Kaspi",
+        callback_data: `pay_${orderNumber}`,
+      },
+    ]);
+  }
+
+  // Row 2: Status progression
+  const statusRow = [];
+  if (orderStatus === "NEW") {
+    statusRow.push({
+      text: "📦 В сборку",
+      callback_data: `proc_${orderNumber}`,
+    });
+  } else if (orderStatus === "PROCESSING") {
+    statusRow.push({
+      text: "🚚 Отправлен клиенту",
+      callback_data: `ship_${orderNumber}`,
+    });
+  } else if (orderStatus === "SHIPPED") {
+    statusRow.push({
+      text: "🎉 Заказ вручен (Выполнен)",
+      callback_data: `done_${orderNumber}`,
+    });
+  }
+
+  if (statusRow.length > 0) {
+    buttons.push(statusRow);
+  }
+
+  // Row 3: Cancel button
+  buttons.push([
+    {
+      text: "❌ Отменить заказ",
+      callback_data: `cancel_${orderNumber}`,
+    },
+  ]);
+
+  return { inline_keyboard: buttons };
+}
+
+/**
+ * Sends a popup notification or alert to the Telegram app when a button is clicked.
+ */
+export async function answerCallbackQuery(
+  callbackQueryId: string,
+  text: string,
+  showAlert: boolean = false
+) {
+  const token = process.env.TELEGRAM_BOT_TOKEN;
+  if (!token || token.includes("placeholder-")) return;
+
+  try {
+    await fetch(`https://api.telegram.org/bot${token}/answerCallbackQuery`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        callback_query_id: callbackQueryId,
+        text,
+        show_alert: showAlert,
+      }),
+    });
+  } catch (err) {
+    console.error("[Telegram] answerCallbackQuery error:", err);
+  }
+}
+
+/**
+ * Updates an existing Telegram message with new status and updated buttons.
+ */
+export async function updateTelegramMessage(
+  chatId: string | number,
+  messageId: number,
+  newText: string,
+  replyMarkup?: any
+) {
+  const token = process.env.TELEGRAM_BOT_TOKEN;
+  if (!token || token.includes("placeholder-")) return;
+
+  try {
+    await fetch(`https://api.telegram.org/bot${token}/editMessageText`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        chat_id: chatId,
+        message_id: messageId,
+        text: newText,
+        parse_mode: "HTML",
+        reply_markup: replyMarkup,
+      }),
+    });
+  } catch (err) {
+    console.error("[Telegram] updateTelegramMessage error:", err);
   }
 }
