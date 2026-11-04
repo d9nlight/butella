@@ -4,9 +4,27 @@ import { getShippingCost } from "@/lib/delivery";
 import { isSupabaseConfigured, getAdminClient } from "@/lib/supabase/admin";
 import { MOCK_PRODUCTS } from "@/data/mock-products";
 import { formatPhoneNumber } from "@/lib/utils";
+import { checkRateLimit, getClientIp } from "@/lib/rate-limit";
 
 export async function POST(req: NextRequest) {
   try {
+    // 0. Rate Limiting Protection (Anti-Spam Bot Protection)
+    const clientIp = getClientIp(req);
+    const rateCheck = checkRateLimit(`order_${clientIp}`, {
+      intervalMs: 10 * 60 * 1000, // 10 minutes
+      maxRequests: 10,
+    });
+
+    if (!rateCheck.isAllowed) {
+      return NextResponse.json(
+        {
+          error:
+            "Слишком много запросов на создание заказа. Пожалуйста, подождите несколько минут.",
+        },
+        { status: 429 }
+      );
+    }
+
     const rawBody = await req.json();
 
     // 1. Zod Validation

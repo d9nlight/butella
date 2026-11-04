@@ -5,6 +5,7 @@ import {
   getExpectedSessionToken,
   ADMIN_COOKIE_NAME,
 } from "@/lib/auth";
+import { checkRateLimit, getClientIp } from "@/lib/rate-limit";
 
 export async function POST(req: NextRequest) {
   try {
@@ -19,6 +20,23 @@ export async function POST(req: NextRequest) {
     }
 
     if (action === "login") {
+      // Brute-force protection: max 5 login attempts per 15 minutes
+      const clientIp = getClientIp(req);
+      const rateCheck = checkRateLimit(`auth_${clientIp}`, {
+        intervalMs: 15 * 60 * 1000,
+        maxRequests: 5,
+      });
+
+      if (!rateCheck.isAllowed) {
+        return NextResponse.json(
+          {
+            error:
+              "Слишком много неверных попыток входа. Пожалуйста, подождите 15 минут.",
+          },
+          { status: 429 }
+        );
+      }
+
       if (!password || !verifyAdminPassword(password)) {
         return NextResponse.json(
           { error: "Неверный пароль владельца бутика" },
