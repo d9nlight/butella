@@ -1,6 +1,6 @@
 import React from "react";
 import { notFound } from "next/navigation";
-import { MOCK_PRODUCTS } from "@/data/mock-products";
+import { getProductBySlug, getProducts } from "@/lib/supabase/products";
 import { ProductView } from "@/components/product/ProductView";
 import { ProductCard } from "@/components/product/ProductCard";
 
@@ -8,15 +8,16 @@ interface ProductPageProps {
   params: Promise<{ slug: string }>;
 }
 
-export function generateStaticParams() {
-  return MOCK_PRODUCTS.map((p) => ({
+export async function generateStaticParams() {
+  const products = await getProducts();
+  return products.map((p) => ({
     slug: p.slug,
   }));
 }
 
 export async function generateMetadata({ params }: ProductPageProps) {
   const { slug } = await params;
-  const product = MOCK_PRODUCTS.find((p) => p.slug === slug || p.id === slug);
+  const product = await getProductBySlug(slug);
 
   if (!product) {
     return {
@@ -37,16 +38,17 @@ export async function generateMetadata({ params }: ProductPageProps) {
 
 export default async function ProductDetailPage({ params }: ProductPageProps) {
   const { slug } = await params;
-  const product = MOCK_PRODUCTS.find((p) => p.slug === slug || p.id === slug);
+  const product = await getProductBySlug(slug);
 
   if (!product) {
     notFound();
   }
 
   // Related products from same category or featured
-  const relatedProducts = MOCK_PRODUCTS.filter(
-    (p) => p.id !== product.id && (p.category === product.category || p.isFeatured)
-  ).slice(0, 4);
+  const allProducts = await getProducts();
+  const relatedProducts = allProducts
+    .filter((p) => p.id !== product.id && (p.category === product.category || p.isFeatured))
+    .slice(0, 4);
 
   return (
     <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 sm:py-16">

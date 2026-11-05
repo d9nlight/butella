@@ -1,3 +1,4 @@
+import { cacheLife } from "next/cache";
 import { Product, ProductImage, ProductVariant } from "@/types/ecommerce";
 import { MOCK_PRODUCTS } from "@/data/mock-products";
 import { isSupabaseConfigured, getAdminClient } from "./admin";
@@ -7,6 +8,8 @@ export async function getProducts(options?: {
   isFeatured?: boolean;
   isNewArrival?: boolean;
 }): Promise<Product[]> {
+  "use cache";
+  cacheLife("minutes");
   if (!isSupabaseConfigured()) {
     let list = [...MOCK_PRODUCTS];
     if (options?.category && options.category !== "Все") {
@@ -57,25 +60,49 @@ export async function getProducts(options?: {
 }
 
 export async function getProductBySlug(slug: string): Promise<Product | null> {
+  "use cache";
+  cacheLife("minutes");
   if (!isSupabaseConfigured()) {
     return MOCK_PRODUCTS.find((p) => p.slug === slug || p.id === slug) || null;
   }
 
   try {
     const supabase = getAdminClient();
-    const { data, error } = await supabase
+    const isUuid = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(slug);
+
+    let query = supabase
       .from("products")
       .select(`
         *,
         images:product_images(*),
         variants:product_variants(*)
-      `)
-      .or(`slug.eq.${slug},id.eq.${slug}`)
-      .single();
+      `);
+
+    if (isUuid) {
+      query = query.or(`slug.eq.${slug},id.eq.${slug}`);
+    } else {
+      query = query.eq("slug", slug);
+    }
+
+    const { data, error } = await query.maybeSingle();
 
     if (error || !data) {
-      // Fallback check
-      return MOCK_PRODUCTS.find((p) => p.slug === slug || p.id === slug) || null;
+      // Fallback check in mock products or by title
+      const mock = MOCK_PRODUCTS.find((p) => p.slug === slug || p.id === slug);
+      if (mock) {
+        const { data: byTitle } = await supabase
+          .from("products")
+          .select(`
+            *,
+            images:product_images(*),
+            variants:product_variants(*)
+          `)
+          .ilike("title", `%${mock.title}%`)
+          .maybeSingle();
+
+        if (byTitle) return mapDatabaseProductToDomain(byTitle);
+      }
+      return mock || null;
     }
 
     return mapDatabaseProductToDomain(data);

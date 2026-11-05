@@ -3,12 +3,13 @@ import Image from "next/image";
 import Link from "next/link";
 import { ArrowRight, Sparkles, MapPin, Phone, Clock, ShieldCheck, Heart } from "lucide-react";
 import { InstagramIcon } from "@/components/ui/InstagramIcon";
-import { MOCK_PRODUCTS } from "@/data/mock-products";
+import { getProducts } from "@/lib/supabase/products";
 import { ProductCard } from "@/components/product/ProductCard";
 
-export default function HomePage() {
-  const newArrivals = MOCK_PRODUCTS.filter((p) => p.isNewArrival);
-  const featured = MOCK_PRODUCTS.filter((p) => p.isFeatured);
+export default async function HomePage() {
+  const products = await getProducts();
+  const newArrivals = products.filter((p) => p.isNewArrival);
+  const featured = products.filter((p) => p.isFeatured);
 
   const categories = [
     {
@@ -142,7 +143,7 @@ export default function HomePage() {
             href="/catalog"
             className="mt-3 sm:mt-0 text-xs uppercase tracking-widest text-[#141414] hover:text-[#C5A059] flex items-center gap-1.5 transition-colors font-medium"
           >
-            <span>Весь каталог ({MOCK_PRODUCTS.length})</span>
+            <span>Весь каталог ({products.length})</span>
             <ArrowRight className="w-3.5 h-3.5" />
           </Link>
         </div>
