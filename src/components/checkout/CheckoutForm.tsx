@@ -143,7 +143,7 @@ export function CheckoutForm({ deliveryOptions }: CheckoutFormProps) {
       if (res.ok && data.success) {
         clearCart();
         router.push(
-          `/checkout/success?orderNumber=${data.orderNumber}&amount=${data.totalAmount}&name=${encodeURIComponent(
+          `/checkout/pay?orderNumber=${data.orderNumber}&amount=${data.totalAmount}&name=${encodeURIComponent(
             customerName
           )}&delivery=${deliveryMethod}`
         );

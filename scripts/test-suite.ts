@@ -9,6 +9,7 @@ import { checkoutFormSchema } from "../src/lib/validations/checkout";
 import { verifyAdminPassword, getExpectedSessionToken } from "../src/lib/auth";
 import { checkRateLimit } from "../src/lib/rate-limit";
 import { kaspiProvider } from "../src/lib/payments/kaspi";
+import { buildKaspiPaymentPayload, generateKaspiQrSvg } from "../src/lib/payments/qr";
 import { getOrderKeyboard } from "../src/lib/telegram/bot";
 
 let passed = 0;
@@ -143,7 +144,7 @@ async function runTestSuite() {
   );
 
   // 6. Kaspi Payment Provider Flow
-  console.log("\n▶ TEST 6: Kaspi Payment Provider");
+  console.log("\n▶ TEST 6: Kaspi Payment Provider & Dynamic QR");
   const kaspiInit = await kaspiProvider.initiatePayment({
     orderNumber: "BUT-999001",
     amount: 28500,
@@ -157,6 +158,56 @@ async function runTestSuite() {
   assert(
     Boolean(kaspiInit.instructions.payUrl && kaspiInit.instructions.payUrl.includes("BUT-999001")),
     "Kaspi pay URL contains order number"
+  );
+
+  // Dynamic QR Code generation test
+  const qrPayload = buildKaspiPaymentPayload({
+    orderNumber: "BUT-999001",
+    amount: 28500,
+  });
+  assert(
+    Boolean(qrPayload.webUrl.includes("BUT-999001")),
+    "QR Web URL contains order number BUT-999001"
+  );
+  assert(
+    Boolean(qrPayload.mobileDeeplink.startsWith("kaspi://pay")),
+    "Mobile deeplink starts with kaspi://pay protocol"
+  );
+  const qrSvg = await generateKaspiQrSvg(qrPayload.qrData);
+  assert(
+    typeof qrSvg === "string" && qrSvg.includes("<svg") && qrSvg.includes("</svg>"),
+    "Dynamic QR code successfully generates valid SVG XML"
+  );
+
+  // Webhook verification test: Kaspi Pay format
+  const validWebhook = await kaspiProvider.verifyPayment(
+    {
+      orderNumber: "BUT-999001",
+      amount: 28500,
+      txn_id: "TXN-TEST-100",
+      status: "PAID",
+      secret: "admin_ddd999",
+    },
+    { querySecret: "admin_ddd999" }
+  );
+  assert(
+    validWebhook.isVerified === true && validWebhook.orderNumber === "BUT-999001",
+    "Webhook successfully verifies authorized Kaspi Pay callback"
+  );
+
+  // Webhook verification test: SMS / Push forwarder parser
+  const smsWebhook = await kaspiProvider.verifyPayment(
+    {
+      text: "Перевод 28 500 ₸ от Даниял с сообщением BUT-999001",
+      secret: "admin_ddd999",
+    },
+    { querySecret: "admin_ddd999" }
+  );
+  assert(
+    smsWebhook.isVerified === true &&
+      smsWebhook.orderNumber === "BUT-999001" &&
+      smsWebhook.amount === 28500,
+    "SMS Gateway parser correctly extracts orderNumber (BUT-999001) and amount (28 500 ₸)"
   );
 
   // 7. Telegram Bot Keyboard & Control
