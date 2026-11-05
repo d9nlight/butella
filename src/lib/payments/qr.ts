@@ -11,7 +11,9 @@ export interface KaspiQrOptions {
 
 export const KASPI_RECIPIENT_PHONE = "+7 (705) 392-02-88";
 export const KASPI_RAW_PHONE = "77053920288";
-export const KASPI_RECIPIENT_NAME = "BUTELLA BOUTIQUE";
+export const KASPI_RECIPIENT_NAME = "Butella_fashion (ИП САМЛАУ)";
+export const KASPI_OFFICIAL_PAY_LINK = "https://pay.kaspi.kz/pay/kob6gsmr";
+export const KASPI_APP_DEEPLINK = "kaspikz://pay.kaspi.kz/pay/kob6gsmr";
 
 /**
  * Builds the official Kaspi Pay / Transfer URL and payload.
@@ -21,29 +23,28 @@ export function buildKaspiPaymentPayload(options: KaspiQrOptions) {
   const recipient = options.recipientName || KASPI_RECIPIENT_NAME;
   const rawPhone = phone.replace(/\D/g, "") || KASPI_RAW_PHONE;
 
+  const baseWebUrl =
+    options.kaspiPayLink ||
+    process.env.NEXT_PUBLIC_KASPI_PAY_LINK ||
+    KASPI_OFFICIAL_PAY_LINK;
+
+  const webUrl = `${baseWebUrl}?order=${encodeURIComponent(
+    options.orderNumber
+  )}&amount=${options.amount}`;
+
+  const mobileDeeplink = KASPI_APP_DEEPLINK;
+  const kaspiAppUrl = baseWebUrl;
+
   const siteUrl =
     options.siteUrl ||
     process.env.NEXT_PUBLIC_SITE_URL ||
     (typeof window !== "undefined" ? window.location.origin : "http://localhost:3000");
 
-  // Mobile order payment URL (when scanned by any smartphone camera, opens this exact order on mobile)
-  const orderMobileUrl = `${siteUrl}/checkout/pay?orderNumber=${encodeURIComponent(options.orderNumber)}&amount=${options.amount}`;
+  const orderMobileUrl = `${siteUrl}/checkout/pay?orderNumber=${encodeURIComponent(
+    options.orderNumber
+  )}&amount=${options.amount}`;
 
-  // Direct Kaspi mobile link
-  const kaspiAppUrl = "https://kaspi.kz";
-
-  // Check if official merchant link is provided (and not a dummy placeholder)
-  const configuredPayLink = options.kaspiPayLink || process.env.NEXT_PUBLIC_KASPI_PAY_LINK;
-  const hasRealMerchantLink =
-    configuredPayLink &&
-    !configuredPayLink.includes("/pay/butella") &&
-    configuredPayLink.startsWith("https://kaspi.kz/pay/");
-
-  const webUrl = hasRealMerchantLink
-    ? `${configuredPayLink}?order=${encodeURIComponent(options.orderNumber)}&amount=${options.amount}`
-    : orderMobileUrl;
-
-  // Kazakhstan Bank Transfer Standard QR text payload (ST00012)
+  // Standard banking QR payload
   const standardQrPayload = [
     `ST00012`,
     `Name=${recipient}`,
@@ -58,10 +59,12 @@ export function buildKaspiPaymentPayload(options: KaspiQrOptions) {
     rawPhone,
     recipient,
     webUrl,
+    mobileDeeplink,
     kaspiAppUrl,
     orderMobileUrl,
     standardQrPayload,
-    // When camera scans QR, it opens the mobile payment page with 1-click copy & Kaspi launch
+    // The QR code encodes the official Kaspi Pay point:
+    // When scanned by Kaspi.kz app scanner or camera, it directly opens Butella_fashion (ИП САМЛАУ)!
     qrData: webUrl,
   };
 }

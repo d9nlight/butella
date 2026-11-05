@@ -166,12 +166,12 @@ async function runTestSuite() {
     amount: 28500,
   });
   assert(
-    Boolean(qrPayload.webUrl.includes("BUT-999001")),
-    "QR Web URL contains order number BUT-999001"
+    Boolean(qrPayload.webUrl.includes("pay.kaspi.kz/pay/kob6gsmr")),
+    "QR Web URL points to official merchant link pay.kaspi.kz/pay/kob6gsmr"
   );
   assert(
-    Boolean(qrPayload.kaspiAppUrl.startsWith("https://kaspi.kz")),
-    "Kaspi application URL starts with official https://kaspi.kz"
+    Boolean(qrPayload.kaspiAppUrl.startsWith("https://pay.kaspi.kz")),
+    "Kaspi application URL starts with official https://pay.kaspi.kz"
   );
   assert(
     Boolean(qrPayload.phone === "+7 (705) 392-02-88"),

@@ -56,10 +56,11 @@ export function PayClient() {
   const [copiedField, setCopiedField] = useState<string | null>(null);
   const [isRedirecting, setIsRedirecting] = useState(false);
 
-  // Exact store credentials
+  // Exact store credentials from official Kaspi Pay
   const kaspiPhone = "+7 (705) 392-02-88";
   const rawKaspiPhone = "77053920288";
-  const recipientName = "BUTELLA BOUTIQUE";
+  const recipientName = "Butella_fashion (ИП САМЛАУ)";
+  const kaspiPayUrl = "https://pay.kaspi.kz/pay/kob6gsmr";
 
   const orderNumber = order?.orderNumber || queryOrderNumber || "BUT-000000";
   const totalAmount = order?.totalAmount || queryAmount || 28500;
@@ -324,25 +325,31 @@ export function PayClient() {
             </div>
           </div>
 
-          {/* Simple 3-Step Instructions */}
-          <div className="bg-[#FAF8F5] border border-[#E6DCD1] rounded-xs p-5 text-xs text-neutral-600 space-y-2.5">
+          {/* Clear Payment Instructions */}
+          <div className="bg-[#FAF8F5] border border-[#E6DCD1] rounded-xs p-5 text-xs text-neutral-600 space-y-3">
             <h3 className="font-serif text-sm font-semibold text-[#141414]">
-              Как оплатить через Kaspi:
+              Способы оплаты через Kaspi:
             </h3>
-            <ol className="list-decimal list-inside space-y-1.5 font-light text-neutral-700">
-              <li>
-                Скопируйте номер получателя: <strong>{kaspiPhone}</strong>
-              </li>
-              <li>
-                Откройте приложение Kaspi → раздел <strong>«Переводы»</strong> → <strong>«Клиенту Kaspi»</strong>
-              </li>
-              <li>
-                Вставьте номер, укажите сумму <strong>{formatPrice(totalAmount)}</strong> и в сообщении впишите код <strong>{orderNumber}</strong>
-              </li>
-              <li>
-                Нажмите перевести. Статус заказа на этой странице обновится автоматически!
-              </li>
-            </ol>
+
+            <div className="space-y-2 font-light text-neutral-700">
+              <div className="p-3 bg-white border border-[#E6DCD1] rounded-xs">
+                <strong className="text-neutral-900 block font-medium mb-1">
+                  1. Через официальный Kaspi Pay (Рекомендуется):
+                </strong>
+                <span>
+                  Нажмите кнопку <strong>«Оплатить в приложении Kaspi»</strong> или отсканируйте QR-код в приложении Kaspi.kz. Откроется оплата продавцу <strong>{recipientName}</strong>. Поддерживаются <strong>Kaspi Gold, Kaspi Red и Рассрочка</strong>.
+                </span>
+              </div>
+
+              <div className="p-3 bg-white border border-[#E6DCD1] rounded-xs">
+                <strong className="text-neutral-900 block font-medium mb-1">
+                  2. Перевод по номеру телефона:
+                </strong>
+                <span>
+                  Перевод на номер <strong>{kaspiPhone}</strong> на сумму <strong>{formatPrice(totalAmount)}</strong> с обязательным комментарием <strong>{orderNumber}</strong>.
+                </span>
+              </div>
+            </div>
           </div>
 
           {/* Delivery Note */}
@@ -394,19 +401,19 @@ export function PayClient() {
             </div>
 
             <p className="text-[11px] text-neutral-500 font-light max-w-xs mx-auto">
-              Наведите камеру смартфона на QR-код, чтобы открыть этот заказ на телефоне
+              Отсканируйте сканером Kaspi QR в приложении Kaspi.kz или наведите камеру смартфона
             </p>
 
             {/* Action Buttons */}
             <div className="space-y-2.5 pt-1">
               <a
-                href={kaspiAppUrl}
+                href={kaspiPayUrl}
                 target="_blank"
                 rel="noopener noreferrer"
                 className="w-full bg-[#F23B3B] hover:bg-[#d92a2a] text-white py-3.5 px-4 text-xs uppercase tracking-wider font-semibold rounded-xs flex items-center justify-center gap-2 transition-colors shadow-md text-center"
               >
                 <Smartphone className="w-4 h-4" />
-                <span>Открыть приложение Kaspi</span>
+                <span>Оплатить в приложении Kaspi</span>
                 <ExternalLink className="w-3.5 h-3.5" />
               </a>
 
@@ -421,9 +428,12 @@ export function PayClient() {
               </a>
             </div>
 
-            <div className="pt-2 border-t border-neutral-100 flex items-center justify-center gap-2 text-[11px] text-neutral-400">
-              <ShieldCheck className="w-3.5 h-3.5 text-emerald-600" />
-              <span>Безопасный перевод на Kaspi Gold</span>
+            <div className="pt-2 border-t border-neutral-100 flex flex-col items-center justify-center gap-1 text-[11px] text-neutral-400">
+              <div className="flex items-center gap-1.5 text-neutral-600 font-medium">
+                <ShieldCheck className="w-3.5 h-3.5 text-emerald-600" />
+                <span>Kaspi Gold • Kaspi Red • Рассрочка</span>
+              </div>
+              <span className="text-[10px] text-neutral-400 font-light">Продавец: Butella_fashion (ИП САМЛАУ)</span>
             </div>
           </div>
         </div>
