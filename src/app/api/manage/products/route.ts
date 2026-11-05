@@ -300,9 +300,16 @@ export async function DELETE(req: NextRequest) {
       const { error } = await supabase.from("products").delete().eq("id", id);
       if (error) throw error;
       return NextResponse.json({ success: true });
-    } catch (err: any) {
-      return NextResponse.json({ error: err.message }, { status: 500 });
-    }
+    } catch (error: any) {
+  console.error("Save product error details:", {
+    message: error?.message,
+    details: error?.details,
+    hint: error?.hint,
+    code: error?.code,
+    full: error
+  });
+  return NextResponse.json({ error: error?.message || "Internal Server Error" }, { status: 500 });
+}
   } else {
     localProducts = localProducts.filter((p) => p.id !== id);
     return NextResponse.json({ success: true });
