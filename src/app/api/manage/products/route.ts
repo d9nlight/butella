@@ -297,19 +297,21 @@ export async function DELETE(req: NextRequest) {
 
   if (isSupabaseConfigured()) {
     try {
-      const supabase = getAdminClient();
-      const { error } = await supabase.from("products").delete().eq("id", id);
-      if (error) throw error;
-      return NextResponse.json({ success: true });
-    } catch (error: any) {
-  console.error("Save product error details:", {
+      } catch (error: any) {
+  console.error("DEEP ERROR INSPECT:", {
+    name: error?.name,
     message: error?.message,
+    code: error?.code,
     details: error?.details,
     hint: error?.hint,
-    code: error?.code,
-    full: error
+    stack: error?.stack,
+    stringified: String(error),
+    raw: error
   });
-  return NextResponse.json({ error: error?.message || "Internal Server Error" }, { status: 500 });
+  return NextResponse.json(
+    { error: error?.message || error?.details || String(error) || "Internal Server Error" },
+    { status: 500 }
+  );
 }
   } else {
     localProducts = localProducts.filter((p) => p.id !== id);
