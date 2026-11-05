@@ -8,15 +8,14 @@ import {
   Copy,
   Check,
   Clock,
-  Sparkles,
   Smartphone,
   ShieldCheck,
-  ArrowRight,
   RefreshCw,
   MapPin,
   Truck,
   CheckCircle2,
-  AlertCircle,
+  ExternalLink,
+  MessageCircle,
 } from "lucide-react";
 import { formatPrice } from "@/lib/utils";
 
@@ -52,31 +51,33 @@ export function PayClient() {
   const queryDelivery = searchParams.get("delivery") || "pickup";
 
   const [order, setOrder] = useState<OrderInfo | null>(null);
-  const [loading, setLoading] = useState(true);
+  const [, setLoading] = useState(true);
   const [paymentStatus, setPaymentStatus] = useState<string>("PENDING");
   const [copiedField, setCopiedField] = useState<string | null>(null);
   const [isRedirecting, setIsRedirecting] = useState(false);
-  const [simulating, setSimulating] = useState(false);
-  const [showSimulateModal, setShowSimulateModal] = useState(false);
-  const [testPassword, setTestPassword] = useState("");
-  const [simulateError, setSimulateError] = useState("");
 
-  const kaspiPhone = process.env.NEXT_PUBLIC_KASPI_PHONE || "+7 (705) 392-02-88";
-  const recipientName = process.env.NEXT_PUBLIC_KASPI_RECIPIENT_NAME || "BUTELLA BOUTIQUE";
-  const rawKaspiPhone = kaspiPhone.replace(/\D/g, "");
-  const basePayLink = process.env.NEXT_PUBLIC_KASPI_PAY_LINK || "https://kaspi.kz/pay/butella";
+  // Exact store credentials
+  const kaspiPhone = "+7 (705) 392-02-88";
+  const rawKaspiPhone = "77053920288";
+  const recipientName = "BUTELLA BOUTIQUE";
 
   const orderNumber = order?.orderNumber || queryOrderNumber || "BUT-000000";
   const totalAmount = order?.totalAmount || queryAmount || 28500;
   const customerName = order?.customerName || queryName || "Покупатель";
   const deliveryMethod = order?.deliveryMethod || queryDelivery;
 
-  // Kaspi Mobile Deep Link & Web Link
-  const kaspiWebLink = `${basePayLink}?order=${encodeURIComponent(orderNumber)}&amount=${totalAmount}`;
-  const kaspiAppDeepLink = `kaspi://pay?merchant=${encodeURIComponent(recipientName)}&order=${encodeURIComponent(orderNumber)}&amount=${totalAmount}&phone=${rawKaspiPhone}`;
+  // Kaspi app link (opens Kaspi app on iOS/Android or web portal)
+  const kaspiAppUrl = "https://kaspi.kz";
 
   // Direct dynamic SVG QR code route
   const qrCodeUrl = `/api/payments/qr?orderNumber=${encodeURIComponent(orderNumber)}&amount=${totalAmount}`;
+
+  // WhatsApp helper link
+  const whatsappUrl = `https://wa.me/77779418188?text=${encodeURIComponent(
+    `Здравствуйте! Я оформил(а) заказ #${orderNumber} на сумму ${formatPrice(
+      totalAmount
+    )} и перевожу оплату на Kaspi (+7 705 392 0288).`
+  )}`;
 
   // 1. Fetch live order data from Supabase
   const fetchOrderData = useCallback(async () => {
@@ -120,7 +121,7 @@ export function PayClient() {
             setPaymentStatus("PAID");
             setIsRedirecting(true);
             clearInterval(interval);
-            // Redirect after short celebration animation
+            // Redirect after celebration animation
             setTimeout(() => {
               router.push(
                 `/checkout/success?orderNumber=${orderNumber}&amount=${totalAmount}&name=${encodeURIComponent(
@@ -130,7 +131,7 @@ export function PayClient() {
             }, 1200);
           }
         }
-      } catch (err) {
+      } catch {
         // Silently retry on network hiccups
       }
     }, 2500);
@@ -143,49 +144,6 @@ export function PayClient() {
     navigator.clipboard.writeText(text);
     setCopiedField(field);
     setTimeout(() => setCopiedField(null), 2000);
-  };
-
-  // Test simulation helper (allows store owner to test the auto-redirect flow)
-  const handleSimulatePayment = async () => {
-    setSimulateError("");
-    setSimulating(true);
-
-    try {
-      const res = await fetch("/api/payments/kaspi/webhook", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          "x-webhook-secret": testPassword || "admin_ddd999",
-        },
-        body: JSON.stringify({
-          orderNumber,
-          amount: totalAmount,
-          txn_id: `SIM-${Math.floor(100000 + Math.random() * 900000)}`,
-          status: "PAID",
-          secret: testPassword || "admin_ddd999",
-        }),
-      });
-
-      const data = await res.json();
-      if (res.ok && data.success) {
-        setShowSimulateModal(false);
-        setPaymentStatus("PAID");
-        setIsRedirecting(true);
-        setTimeout(() => {
-          router.push(
-            `/checkout/success?orderNumber=${orderNumber}&amount=${totalAmount}&name=${encodeURIComponent(
-              customerName
-            )}&delivery=${deliveryMethod}&paid=1`
-          );
-        }, 1200);
-      } else {
-        setSimulateError(data.error || "Не удалось подтвердить оплату. Проверьте пароль.");
-      }
-    } catch {
-      setSimulateError("Ошибка сети при отправке запроса");
-    } finally {
-      setSimulating(false);
-    }
   };
 
   const isPaid = paymentStatus === "PAID";
@@ -203,11 +161,11 @@ export function PayClient() {
         <p className="text-xs sm:text-sm text-neutral-500 font-light max-w-lg mx-auto">
           {isPaid
             ? `Спасибо за покупку, ${customerName}! Платеж зафиксирован в системе.`
-            : `Здравствуйте, ${customerName}! Заказ #${orderNumber} зарегистрирован и ожидает подтверждения перевода.`}
+            : `Здравствуйте, ${customerName}! Заказ #${orderNumber} зарегистрирован. Совершите перевод на Kaspi по реквизитам ниже:`}
         </p>
       </div>
 
-      {/* Main Grid: Left Payment Details / Right Dynamic QR & App Link */}
+      {/* Main Grid: Left Payment Details / Right Dynamic QR */}
       <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
         {/* LEFT COLUMN: Payment Status & Requisites (7 cols) */}
         <div className="lg:col-span-7 space-y-6">
@@ -221,7 +179,7 @@ export function PayClient() {
           >
             <div className="flex items-center gap-3">
               {isPaid ? (
-                <div className="w-10 h-10 rounded-full bg-emerald-600 text-white flex items-center justify-center shrink-0 animate-scale-in">
+                <div className="w-10 h-10 rounded-full bg-emerald-600 text-white flex items-center justify-center shrink-0">
                   <CheckCircle2 className="w-6 h-6 stroke-[2]" />
                 </div>
               ) : (
@@ -232,7 +190,7 @@ export function PayClient() {
               <div className="flex-1">
                 <div className="flex items-center justify-between">
                   <span className="text-[11px] uppercase tracking-wider font-semibold text-neutral-400">
-                    Статус оплаты
+                    Статус платежа
                   </span>
                   <span className="text-[11px] text-neutral-400 flex items-center gap-1">
                     <RefreshCw className="w-3 h-3 animate-spin" />
@@ -245,7 +203,7 @@ export function PayClient() {
                       Оплачено ✅ Перенаправляем на чек...
                     </span>
                   ) : (
-                    <span>Ожидаем поступления перевода Kaspi...</span>
+                    <span>Ожидаем подтверждения перевода...</span>
                   )}
                 </h3>
               </div>
@@ -253,8 +211,8 @@ export function PayClient() {
 
             <p className="text-xs text-neutral-500 font-light mt-3 pl-13">
               {isPaid
-                ? "Транзакция подтверждена. Бутик BUTELLA уже приступил к подготовке вашего заказа."
-                : "Страница обновится автоматически сразу после подтверждения перевода банком или владельцем бутика."}
+                ? "Платеж принят. Бутик BUTELLA уже приступил к подготовке вашего заказа."
+                : "Как только вы отправите перевод, статус автоматически изменится на «Оплачено»."}
             </p>
           </div>
 
@@ -268,17 +226,17 @@ export function PayClient() {
                 <h2 className="font-serif text-base text-[#141414]">Реквизиты для перевода</h2>
               </div>
               <span className="text-[10px] uppercase tracking-wider text-[#A0826C] font-semibold">
-                Kaspi Gold / QR
+                Kaspi Gold
               </span>
             </div>
 
-            {/* Field: Phone */}
+            {/* Field: Recipient Phone */}
             <div className="p-3.5 bg-[#FAF8F5] border border-[#E6DCD1] rounded-xs flex items-center justify-between">
               <div>
                 <span className="text-[10px] uppercase tracking-wider text-neutral-400 block font-light">
-                  Номер телефона получателя
+                  Номер телефона получателя Kaspi
                 </span>
-                <span className="font-mono text-sm sm:text-base font-semibold text-[#141414]">
+                <span className="font-mono text-base sm:text-lg font-bold text-[#141414]">
                   {kaspiPhone}
                 </span>
                 <span className="text-[11px] text-neutral-500 font-light block">
@@ -287,7 +245,7 @@ export function PayClient() {
               </div>
               <button
                 type="button"
-                onClick={() => handleCopy(kaspiPhone, "phone")}
+                onClick={() => handleCopy(rawKaspiPhone, "phone")}
                 className="flex items-center gap-1 text-xs text-[#A0826C] hover:text-black font-medium px-3 py-1.5 border border-[#E6DCD1] bg-white rounded-xs transition-colors"
               >
                 {copiedField === "phone" ? (
@@ -343,7 +301,7 @@ export function PayClient() {
                   {orderNumber}
                 </span>
                 <span className="text-[10px] text-[#8A6A2E] font-light block">
-                  По этому коду система автоматически распознает ваш платеж
+                  Укажите этот код в комментарии, чтобы оплата привязалась к заказу
                 </span>
               </div>
               <button
@@ -366,8 +324,29 @@ export function PayClient() {
             </div>
           </div>
 
+          {/* Simple 3-Step Instructions */}
+          <div className="bg-[#FAF8F5] border border-[#E6DCD1] rounded-xs p-5 text-xs text-neutral-600 space-y-2.5">
+            <h3 className="font-serif text-sm font-semibold text-[#141414]">
+              Как оплатить через Kaspi:
+            </h3>
+            <ol className="list-decimal list-inside space-y-1.5 font-light text-neutral-700">
+              <li>
+                Скопируйте номер получателя: <strong>{kaspiPhone}</strong>
+              </li>
+              <li>
+                Откройте приложение Kaspi → раздел <strong>«Переводы»</strong> → <strong>«Клиенту Kaspi»</strong>
+              </li>
+              <li>
+                Вставьте номер, укажите сумму <strong>{formatPrice(totalAmount)}</strong> и в сообщении впишите код <strong>{orderNumber}</strong>
+              </li>
+              <li>
+                Нажмите перевести. Статус заказа на этой странице обновится автоматически!
+              </li>
+            </ol>
+          </div>
+
           {/* Delivery Note */}
-          <div className="p-4 bg-[#FAF8F5] border border-[#E6DCD1] rounded-xs text-xs text-neutral-600 flex items-start gap-3">
+          <div className="p-4 bg-white border border-[#E6DCD1] rounded-xs text-xs text-neutral-600 flex items-start gap-3">
             {deliveryMethod === "pickup" ? (
               <>
                 <MapPin className="w-5 h-5 text-[#C5A059] shrink-0 mt-0.5" />
@@ -388,20 +367,19 @@ export function PayClient() {
           </div>
         </div>
 
-        {/* RIGHT COLUMN: Dynamic QR Code & Mobile Deep Link Button (5 cols) */}
+        {/* RIGHT COLUMN: QR Code & Mobile Launch Button (5 cols) */}
         <div className="lg:col-span-5 space-y-6">
-          <div className="bg-white border-2 border-[#141414] rounded-xs p-6 sm:p-7 shadow-xl text-center space-y-6">
+          <div className="bg-white border-2 border-[#141414] rounded-xs p-6 sm:p-7 shadow-xl text-center space-y-5">
             <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-neutral-100 text-[11px] font-medium text-neutral-800">
               <Smartphone className="w-3.5 h-3.5 text-[#F23B3B]" />
-              <span>Оплата через приложение Kaspi</span>
+              <span>Оплата через Kaspi</span>
             </div>
 
-            {/* Dynamic Scalable QR Code Container */}
+            {/* Dynamic Scalable QR Container */}
             <div className="relative mx-auto w-64 h-64 bg-white border border-[#E6DCD1] rounded-xs p-4 flex items-center justify-center shadow-inner">
-              {/* Dynamic QR SVG loaded from our API endpoint */}
               <Image
                 src={qrCodeUrl}
-                alt={`Kaspi QR для заказа ${orderNumber}`}
+                alt={`QR код заказа ${orderNumber}`}
                 width={240}
                 height={240}
                 className="w-full h-full object-contain"
@@ -416,98 +394,40 @@ export function PayClient() {
             </div>
 
             <p className="text-[11px] text-neutral-500 font-light max-w-xs mx-auto">
-              Наведите камеру смартфона на QR-код или откройте сканер в приложении Kaspi.kz
+              Наведите камеру смартфона на QR-код, чтобы открыть этот заказ на телефоне
             </p>
 
-            {/* Mobile Action Button */}
-            <div className="space-y-2 pt-2">
+            {/* Action Buttons */}
+            <div className="space-y-2.5 pt-1">
               <a
-                href={kaspiAppDeepLink}
+                href={kaspiAppUrl}
+                target="_blank"
+                rel="noopener noreferrer"
                 className="w-full bg-[#F23B3B] hover:bg-[#d92a2a] text-white py-3.5 px-4 text-xs uppercase tracking-wider font-semibold rounded-xs flex items-center justify-center gap-2 transition-colors shadow-md text-center"
               >
                 <Smartphone className="w-4 h-4" />
-                <span>Оплатить в приложении Kaspi</span>
-                <ArrowRight className="w-4 h-4" />
+                <span>Открыть приложение Kaspi</span>
+                <ExternalLink className="w-3.5 h-3.5" />
               </a>
 
               <a
-                href={kaspiWebLink}
+                href={whatsappUrl}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="w-full text-center block text-[11px] text-neutral-500 hover:text-black underline font-light pt-1"
+                className="w-full bg-[#25D366] hover:bg-[#20b858] text-white py-3 px-4 text-xs uppercase tracking-wider font-medium rounded-xs flex items-center justify-center gap-2 transition-colors text-center shadow-xs"
               >
-                Открыть веб-версию перевода Kaspi
+                <MessageCircle className="w-4 h-4" />
+                <span>Отправить чек в WhatsApp</span>
               </a>
             </div>
 
             <div className="pt-2 border-t border-neutral-100 flex items-center justify-center gap-2 text-[11px] text-neutral-400">
               <ShieldCheck className="w-3.5 h-3.5 text-emerald-600" />
-              <span>Безопасная оплата через Kaspi Bank</span>
+              <span>Безопасный перевод на Kaspi Gold</span>
             </div>
-          </div>
-
-          {/* Test Simulation trigger for owner / dev */}
-          <div className="text-center pt-2">
-            <button
-              type="button"
-              onClick={() => setShowSimulateModal(true)}
-              className="text-[11px] text-neutral-400 hover:text-neutral-700 underline font-light"
-            >
-              🛠 Тест: симуляция подтверждения оплаты
-            </button>
           </div>
         </div>
       </div>
-
-      {/* Test Simulation Modal */}
-      {showSimulateModal && (
-        <div className="fixed inset-0 z-50 bg-black/60 backdrop-blur-xs flex items-center justify-center p-4">
-          <div className="bg-white border border-[#E6DCD1] rounded-xs max-w-md w-full p-6 space-y-4 shadow-2xl animate-fade-in">
-            <h3 className="font-serif text-lg text-[#141414]">Тест системы авто-оплаты</h3>
-            <p className="text-xs text-neutral-500 font-light">
-              Этот режим отправляет тестовый вебхук на бэкенд от имени Kaspi / банка. Заказ #{orderNumber} будет автоматически переведен в статус «Оплачен», и сработает редирект.
-            </p>
-
-            {simulateError && (
-              <div className="p-3 bg-red-50 border border-red-200 text-red-700 text-xs rounded-xs flex items-center gap-2">
-                <AlertCircle className="w-4 h-4 shrink-0" />
-                <span>{simulateError}</span>
-              </div>
-            )}
-
-            <div>
-              <label className="text-[11px] text-neutral-600 block mb-1 font-medium">
-                Пароль администратора (или вебхука):
-              </label>
-              <input
-                type="password"
-                placeholder="admin_ddd999"
-                value={testPassword}
-                onChange={(e) => setTestPassword(e.target.value)}
-                className="w-full px-3 py-2 text-xs border border-neutral-300 rounded-xs focus:outline-none focus:border-black"
-              />
-            </div>
-
-            <div className="flex items-center justify-end gap-3 pt-2">
-              <button
-                type="button"
-                onClick={() => setShowSimulateModal(false)}
-                className="px-4 py-2 text-xs text-neutral-600 hover:text-black"
-              >
-                Отмена
-              </button>
-              <button
-                type="button"
-                onClick={handleSimulatePayment}
-                disabled={simulating}
-                className="px-5 py-2 text-xs font-semibold uppercase tracking-wider bg-[#141414] text-white hover:bg-[#A0826C] transition-colors rounded-xs disabled:opacity-50"
-              >
-                {simulating ? "Отправка..." : "Подтвердить оплату"}
-              </button>
-            </div>
-          </div>
-        </div>
-      )}
     </div>
   );
 }

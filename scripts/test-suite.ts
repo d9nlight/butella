@@ -170,8 +170,12 @@ async function runTestSuite() {
     "QR Web URL contains order number BUT-999001"
   );
   assert(
-    Boolean(qrPayload.mobileDeeplink.startsWith("kaspi://pay")),
-    "Mobile deeplink starts with kaspi://pay protocol"
+    Boolean(qrPayload.kaspiAppUrl.startsWith("https://kaspi.kz")),
+    "Kaspi application URL starts with official https://kaspi.kz"
+  );
+  assert(
+    Boolean(qrPayload.phone === "+7 (705) 392-02-88"),
+    "Kaspi recipient phone is explicitly +7 (705) 392-02-88"
   );
   const qrSvg = await generateKaspiQrSvg(qrPayload.qrData);
   assert(

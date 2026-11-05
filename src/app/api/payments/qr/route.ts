@@ -26,9 +26,11 @@ export async function GET(req: NextRequest) {
       }
     }
 
+    const siteUrl = req.nextUrl.origin || process.env.NEXT_PUBLIC_SITE_URL;
     const payload = buildKaspiPaymentPayload({
       orderNumber,
       amount,
+      siteUrl,
     });
 
     const svg = await generateKaspiQrSvg(payload.qrData);

@@ -70,7 +70,7 @@ export function AdminLogin({ onLoginSuccess }: { onLoginSuccess: () => void }) {
                 type={showPassword ? "text" : "password"}
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
-                placeholder="••••••••••••"
+                placeholder="Введите пароль"
                 required
                 className="w-full bg-white border border-[#E6DCD1] rounded-xs px-4 py-3 text-sm focus:outline-none focus:border-[#141414] transition-colors pr-10"
               />
@@ -83,9 +83,6 @@ export function AdminLogin({ onLoginSuccess }: { onLoginSuccess: () => void }) {
                 {showPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
               </button>
             </div>
-            <p className="text-[11px] text-neutral-400 mt-1.5 font-light">
-              Пароль: <code className="text-neutral-700 bg-neutral-200/60 px-1 py-0.5 rounded">admin_ddd999</code>
-            </p>
           </div>
 
           <button
