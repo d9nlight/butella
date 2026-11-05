@@ -67,7 +67,7 @@ npm run dev
 ```
 Откройте в браузере:
 * Витрина магазина: [http://localhost:3000](http://localhost:3000)
-* Панель владельца: [http://localhost:3000/manage](http://localhost:3000/manage) *(пароль по умолчанию: `butella2026`)*
+* Панель владельца: [http://localhost:3000/manage](http://localhost:3000/manage) *(пароль владельца: `admin_ddd999`)*
 
 ### 3. Запуск автоматических тестов
 ```bash

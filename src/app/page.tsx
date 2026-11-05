@@ -205,7 +205,7 @@ export default async function HomePage() {
                   <ArrowRight className="w-3.5 h-3.5" />
                 </Link>
                 <a
-                  href="https://wa.me/77771234567"
+                  href="https://wa.me/77779418188"
                   target="_blank"
                   rel="noopener noreferrer"
                   className="inline-flex items-center justify-center gap-2 border border-neutral-300 px-6 py-3.5 text-xs uppercase tracking-widest text-neutral-800 hover:border-black transition-colors"
@@ -257,7 +257,7 @@ export default async function HomePage() {
                   <MapPin className="w-5 h-5 text-[#C5A059] shrink-0 mt-0.5" />
                   <div>
                     <strong className="text-white block font-medium">Адрес бутика:</strong>
-                    <span>г. Кызылорда, ул. Абая 45 (Бутик BUTELLA)</span>
+                    <span>г. Кызылорда, ADS Plaza 116 бутик (Бутик BUTELLA)</span>
                   </div>
                 </div>
 
@@ -273,8 +273,8 @@ export default async function HomePage() {
                   <Phone className="w-5 h-5 text-[#C5A059] shrink-0 mt-0.5" />
                   <div>
                     <strong className="text-white block font-medium">Телефон / WhatsApp:</strong>
-                    <a href="tel:+77771234567" className="hover:text-[#C5A059] transition-colors">
-                      +7 (777) 123-45-67
+                    <a href="tel:+77779418188" className="hover:text-[#C5A059] transition-colors">
+                      +7 (777) 941-81-88
                     </a>
                   </div>
                 </div>
@@ -282,7 +282,7 @@ export default async function HomePage() {
 
               <div className="mt-8 flex flex-wrap gap-4">
                 <a
-                  href="https://wa.me/77771234567"
+                  href="https://wa.me/77779418188"
                   target="_blank"
                   rel="noopener noreferrer"
                   className="bg-[#C5A059] text-black px-6 py-3 text-xs uppercase tracking-widest font-semibold hover:bg-white transition-colors"
@@ -290,12 +290,12 @@ export default async function HomePage() {
                   Написать в WhatsApp
                 </a>
                 <a
-                  href="https://instagram.com/butella_kz"
+                  href="https://instagram.com/butella_fashion_kzo"
                   target="_blank"
                   rel="noopener noreferrer"
                   className="border border-white/30 text-white px-6 py-3 text-xs uppercase tracking-widest hover:border-white transition-colors"
                 >
-                  Instagram @butella_kz
+                  Instagram @butella_fashion_kzo
                 </a>
               </div>
             </div>
@@ -323,12 +323,12 @@ export default async function HomePage() {
             Мы в Instagram
           </h2>
           <a
-            href="https://instagram.com/butella_kz"
+            href="https://instagram.com/butella_fashion_kzo"
             target="_blank"
             rel="noopener noreferrer"
             className="text-xs uppercase tracking-widest text-[#A0826C] hover:text-black transition-colors font-medium mt-1 inline-block"
           >
-            @butella_kz — Подписывайтесь на ежедневные обзоры
+            @butella_fashion_kzo — Подписывайтесь на ежедневные обзоры
           </a>
         </div>
 
@@ -343,7 +343,7 @@ export default async function HomePage() {
           ].map((src, idx) => (
             <a
               key={idx}
-              href="https://instagram.com/butella_kz"
+              href="https://instagram.com/butella_fashion_kzo"
               target="_blank"
               rel="noopener noreferrer"
               className="relative aspect-square block overflow-hidden group rounded-xs bg-neutral-100"

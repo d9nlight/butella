@@ -191,7 +191,7 @@ export function ProductView({ product }: ProductViewProps) {
                 Размер:
               </span>
               <a
-                href="https://wa.me/77771234567?text=Здравствуйте,%20подскажите%20пожалуйста%20по%20размеру%20для%20модели:%20"
+                href="https://wa.me/77779418188?text=Здравствуйте,%20подскажите%20пожалуйста%20по%20размеру%20для%20модели:%20"
                 target="_blank"
                 rel="noopener noreferrer"
                 className="text-[11px] text-[#A0826C] hover:underline"
@@ -259,7 +259,7 @@ export function ProductView({ product }: ProductViewProps) {
             </button>
 
             <a
-              href={`https://wa.me/77771234567?text=${encodeURIComponent(
+              href={`https://wa.me/77779418188?text=${encodeURIComponent(
                 `Здравствуйте! Хочу заказать или примерить в бутике: ${product.title} (Размер: ${selectedVariant?.size || "не выбран"})`
               )}`}
               target="_blank"
@@ -296,7 +296,7 @@ export function ProductView({ product }: ProductViewProps) {
               </button>
               {activeAccordion === "delivery" && (
                 <div className="pb-4 text-xs text-neutral-600 font-light space-y-1.5 leading-relaxed">
-                  <p>• <strong>Самовывоз в Кызылорде</strong> (ул. Абая 45) — бесплатно, с возможностью примерки.</p>
+                  <p>• <strong>Самовывоз в Кызылорде</strong> (ADS Plaza 116 бутик) — бесплатно, с возможностью примерки.</p>
                   <p>• <strong>Курьер по Кызылорде</strong> — день в день, стоимость 1 500 ₸.</p>
                   <p>• <strong>Доставка по Казахстану</strong> (Казпочта / CDEK) — 2 500 ₸ (2-4 дня).</p>
                 </div>
@@ -345,7 +345,7 @@ export function ProductView({ product }: ProductViewProps) {
               </button>
               {activeAccordion === "boutique" && (
                 <div className="pb-4 text-xs text-neutral-600 font-light space-y-1.5 leading-relaxed">
-                  <p>Бутик находится в центре Кызылорды: <strong>ул. Абая 45</strong>.</p>
+                  <p>Бутик находится в Кызылорде: <strong>ADS Plaza 116 бутик</strong>.</p>
                   <p>Работаем ежедневно с 10:00 до 20:00. В бутике просторные примерочные, мягкий свет и профессиональные консультанты.</p>
                 </div>
               )}

@@ -16,7 +16,7 @@ export function Footer() {
             <div>
               <h4 className="font-serif text-lg text-white">Бутик в Кызылорде</h4>
               <p className="text-xs text-neutral-400 mt-1 font-light">
-                ул. Абая 45 • Примерка в уютной обстановке
+                ADS Plaza 116 бутик • Примерка в уютной обстановке
               </p>
             </div>
           </div>
@@ -58,7 +58,7 @@ export function Footer() {
             </p>
             <div className="flex items-center space-x-4 pt-2">
               <a
-                href="https://instagram.com/butella_kz"
+                href="https://instagram.com/butella_fashion_kzo"
                 target="_blank"
                 rel="noopener noreferrer"
                 className="w-9 h-9 rounded-full bg-white/5 hover:bg-[#C5A059] hover:text-black flex items-center justify-center transition-all duration-300"
@@ -67,7 +67,7 @@ export function Footer() {
                 <InstagramIcon className="w-4 h-4" />
               </a>
               <a
-                href="https://wa.me/77771234567"
+                href="https://wa.me/77779418188"
                 target="_blank"
                 rel="noopener noreferrer"
                 className="w-9 h-9 rounded-full bg-white/5 hover:bg-[#C5A059] hover:text-black flex items-center justify-center transition-all duration-300"
@@ -148,7 +148,7 @@ export function Footer() {
             </h5>
             <div className="flex items-start gap-2.5 text-xs text-neutral-400 font-light">
               <MapPin className="w-4 h-4 text-[#C5A059] shrink-0 mt-0.5" />
-              <span>г. Кызылорда, ул. Абая 45 (Бутик BUTELLA)</span>
+              <span>г. Кызылорда, ADS Plaza 116 бутик (Бутик BUTELLA)</span>
             </div>
             <div className="flex items-center gap-2.5 text-xs text-neutral-400 font-light">
               <Clock className="w-4 h-4 text-[#C5A059] shrink-0" />
@@ -156,8 +156,8 @@ export function Footer() {
             </div>
             <div className="flex items-center gap-2.5 text-xs text-neutral-400 font-light">
               <Phone className="w-4 h-4 text-[#C5A059] shrink-0" />
-              <a href="tel:+77771234567" className="hover:text-white">
-                +7 (777) 123-45-67
+              <a href="tel:+77779418188" className="hover:text-white">
+                +7 (777) 941-81-88
               </a>
             </div>
           </div>

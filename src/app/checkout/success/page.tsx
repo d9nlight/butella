@@ -26,7 +26,7 @@ function SuccessContent() {
   const [copied, setCopied] = useState(false);
   const [paymentStatus, setPaymentStatus] = useState<string>("PENDING");
 
-  const kaspiPhone = process.env.NEXT_PUBLIC_KASPI_PHONE || "+7 (777) 123-45-67";
+  const kaspiPhone = process.env.NEXT_PUBLIC_KASPI_PHONE || "+7 (705) 392-02-88";
   const recipientName = process.env.NEXT_PUBLIC_KASPI_RECIPIENT_NAME || "BUTELLA BOUTIQUE";
   const kaspiPayLink = process.env.NEXT_PUBLIC_KASPI_PAY_LINK || "https://kaspi.kz/pay/butella";
 
@@ -192,7 +192,7 @@ function SuccessContent() {
             <MapPin className="w-5 h-5 text-[#C5A059] shrink-0 mt-0.5" />
             <div>
               <strong className="text-neutral-800 block font-medium">Самовывоз из бутика:</strong>
-              <span>г. Кызылорда, ул. Абая 45. Ждем вас на примерку ежедневно с 10:00 до 20:00.</span>
+              <span>г. Кызылорда, ADS Plaza 116 бутик. Ждем вас на примерку ежедневно с 10:00 до 20:00.</span>
             </div>
           </div>
         ) : (
@@ -215,7 +215,7 @@ function SuccessContent() {
           Вернуться на главную
         </Link>
         <a
-          href={`https://wa.me/77771234567?text=${encodeURIComponent(
+          href={`https://wa.me/77779418188?text=${encodeURIComponent(
             `Здравствуйте! Я оформил(а) заказ #${orderNumber} на сумму ${amount} ₸.`
           )}`}
           target="_blank"

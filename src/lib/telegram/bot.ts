@@ -19,20 +19,28 @@ export interface NewOrderNotificationData {
   items: OrderNotificationItem[];
 }
 
+export function getTelegramChatIds(): string[] {
+  const raw = process.env.TELEGRAM_OWNER_CHAT_ID || "";
+  return raw
+    .split(/[,;\s]+/)
+    .map((id) => id.trim())
+    .filter((id) => id && id !== "000000000" && !id.includes("placeholder"));
+}
+
 /**
  * Sends a rich order notification message to the owner's Telegram with interactive action buttons.
  */
 export async function notifyNewOrder(data: NewOrderNotificationData): Promise<boolean> {
   const token = process.env.TELEGRAM_BOT_TOKEN;
-  const chatId = process.env.TELEGRAM_OWNER_CHAT_ID;
+  const chatIds = getTelegramChatIds();
 
-  if (!token || !chatId || token.includes("placeholder-") || chatId === "000000000") {
+  if (!token || chatIds.length === 0 || token.includes("placeholder-")) {
     console.log("[Telegram] Mock Notification: Order created", data.orderNumber);
     return false;
   }
 
   const deliveryNames: Record<string, string> = {
-    pickup: "Самовывоз из бутика (Кызылорда, ул. Абая 45)",
+    pickup: "Самовывоз из бутика (Кызылорда, ADS Plaza 116 бутик)",
     local: "Курьер по Кызылорде (день в день)",
     kazakhstan: "Доставка по Казахстану (Казпочта/CDEK)",
   };
@@ -65,29 +73,32 @@ ${itemsList}
 
   const inlineKeyboard = getOrderKeyboard(data.orderNumber, "PENDING", "NEW");
 
-  try {
-    const res = await fetch(`https://api.telegram.org/bot${token}/sendMessage`, {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({
-        chat_id: chatId,
-        text: messageText,
-        parse_mode: "HTML",
-        reply_markup: inlineKeyboard,
-      }),
-    });
+  let successCount = 0;
+  for (const cid of chatIds) {
+    try {
+      const res = await fetch(`https://api.telegram.org/bot${token}/sendMessage`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          chat_id: cid,
+          text: messageText,
+          parse_mode: "HTML",
+          reply_markup: inlineKeyboard,
+        }),
+      });
 
-    if (!res.ok) {
-      const err = await res.json();
-      console.error("[Telegram] API error:", err);
-      return false;
+      if (res.ok) {
+        successCount++;
+      } else {
+        const err = await res.json();
+        console.warn(`[Telegram] API error for chat_id ${cid}:`, err);
+      }
+    } catch (e) {
+      console.warn(`[Telegram] Network error for chat_id ${cid}:`, e);
     }
-
-    return true;
-  } catch (error) {
-    console.error("[Telegram] Send failed:", error);
-    return false;
   }
+
+  return successCount > 0;
 }
 
 /**

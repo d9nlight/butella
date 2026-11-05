@@ -12,7 +12,7 @@ export function getDeliveryOptions(): DeliveryOption[] {
     {
       id: "pickup",
       title: "Самовывоз из бутика",
-      description: "г. Кызылорда, ул. Абая 45 • Ежедневно 10:00–20:00 • Бесплатная примерка",
+      description: "г. Кызылорда, ADS Plaza 116 бутик • Ежедневно 10:00–20:00 • Бесплатная примерка",
       price: pickupPrice,
       badge: "Бесплатно",
     },

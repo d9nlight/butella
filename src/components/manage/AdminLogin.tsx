@@ -84,7 +84,7 @@ export function AdminLogin({ onLoginSuccess }: { onLoginSuccess: () => void }) {
               </button>
             </div>
             <p className="text-[11px] text-neutral-400 mt-1.5 font-light">
-              По умолчанию: <code className="text-neutral-700 bg-neutral-200/60 px-1 py-0.5 rounded">butella2026</code>
+              Пароль: <code className="text-neutral-700 bg-neutral-200/60 px-1 py-0.5 rounded">admin_ddd999</code>
             </p>
           </div>
 

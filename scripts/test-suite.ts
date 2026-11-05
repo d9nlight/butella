@@ -120,8 +120,8 @@ async function runTestSuite() {
     "Wrong password returns false"
   );
   assert(
-    verifyAdminPassword("butella2026"),
-    "Configured owner password 'butella2026' returns true"
+    verifyAdminPassword("admin_ddd999"),
+    "Configured owner password 'admin_ddd999' returns true"
   );
   const token = getExpectedSessionToken();
   assert(

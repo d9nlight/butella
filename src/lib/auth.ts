@@ -18,7 +18,7 @@ export async function isAdminAuthenticated(): Promise<boolean> {
  * Verifies the password submitted by the store owner.
  */
 export function verifyAdminPassword(password: string): boolean {
-  const configuredPassword = process.env.ADMIN_PASSWORD || "butella2026";
+  const configuredPassword = process.env.ADMIN_PASSWORD || "admin_ddd999";
   return password === configuredPassword;
 }
 
@@ -26,7 +26,7 @@ export function verifyAdminPassword(password: string): boolean {
  * Generates the expected session token based on the admin password.
  */
 export function getExpectedSessionToken(): string {
-  const secret = process.env.ADMIN_PASSWORD || "butella2026";
+  const secret = process.env.ADMIN_PASSWORD || "admin_ddd999";
   // Simple deterministic token representation
   return Buffer.from(`butella_authenticated_owner:${secret}`).toString("base64");
 }

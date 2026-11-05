@@ -4,6 +4,7 @@ import {
   answerCallbackQuery,
   updateTelegramMessage,
   getOrderKeyboard,
+  getTelegramChatIds,
 } from "@/lib/telegram/bot";
 
 export async function POST(req: NextRequest) {
@@ -28,12 +29,12 @@ export async function POST(req: NextRequest) {
       const cq = update.callback_query;
       const callbackId = cq.id;
       const senderId = cq.from.id.toString();
-      const ownerChatId = process.env.TELEGRAM_OWNER_CHAT_ID;
+      const allowedChatIds = getTelegramChatIds();
       const data = cq.data as string;
       const message = cq.message;
 
-      // Verify that the action was clicked by the authorized owner
-      if (ownerChatId && !ownerChatId.startsWith("000") && senderId !== ownerChatId) {
+      // Verify that the action was clicked by an authorized owner
+      if (allowedChatIds.length > 0 && !allowedChatIds.includes(senderId)) {
         await answerCallbackQuery(callbackId, "Доступ запрещен. Только владелец бутика может управлять заказами.", true);
         return NextResponse.json({ ok: true });
       }

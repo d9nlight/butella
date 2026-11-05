@@ -9,7 +9,7 @@ export class KaspiPaymentProvider implements PaymentProvider {
     amount: number;
     customerPhone: string;
   }): Promise<PaymentInitiationResult> {
-    const phone = process.env.NEXT_PUBLIC_KASPI_PHONE || "+7 (777) 123-45-67";
+    const phone = process.env.NEXT_PUBLIC_KASPI_PHONE || "+7 (705) 392-02-88";
     const recipient = process.env.NEXT_PUBLIC_KASPI_RECIPIENT_NAME || "BUTELLA BOUTIQUE";
     const baseUrl = process.env.NEXT_PUBLIC_KASPI_PAY_LINK || "https://kaspi.kz/pay/butella";
 

@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { kaspiProvider } from "@/lib/payments/kaspi";
 import { isSupabaseConfigured, getAdminClient } from "@/lib/supabase/admin";
+import { getTelegramChatIds } from "@/lib/telegram/bot";
 
 export async function POST(req: NextRequest) {
   try {
@@ -40,19 +41,25 @@ export async function POST(req: NextRequest) {
           payload: body,
         });
 
-        // Notify owner via Telegram
+        // Notify owners via Telegram
         const token = process.env.TELEGRAM_BOT_TOKEN;
-        const chatId = process.env.TELEGRAM_OWNER_CHAT_ID;
-        if (token && chatId && !token.includes("placeholder-")) {
-          await fetch(`https://api.telegram.org/bot${token}/sendMessage`, {
-            method: "POST",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({
-              chat_id: chatId,
-              text: `✅ <b>Оплата по Kaspi Pay подтверждена!</b>\nЗаказ: #${orderNumber}\nСумма: ${amount.toLocaleString("ru-KZ")} ₸\nID транзакции: <code>${transactionId}</code>`,
-              parse_mode: "HTML",
-            }),
-          });
+        const chatIds = getTelegramChatIds();
+        if (token && chatIds.length > 0 && !token.includes("placeholder-")) {
+          for (const cid of chatIds) {
+            try {
+              await fetch(`https://api.telegram.org/bot${token}/sendMessage`, {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({
+                  chat_id: cid,
+                  text: `✅ <b>Оплата по Kaspi Pay подтверждена!</b>\nЗаказ: #${orderNumber}\nСумма: ${amount.toLocaleString("ru-KZ")} ₸\nID транзакции: <code>${transactionId}</code>`,
+                  parse_mode: "HTML",
+                }),
+              });
+            } catch (err) {
+              console.warn(`[Telegram] Kaspi payment notification error for ${cid}:`, err);
+            }
+          }
         }
       }
     }
