@@ -1,34 +1,128 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# BUTELLA — Премиальный бутик женской одежды (Кызылорда)
 
-## Getting Started
+[![Next.js](https://img.shields.io/badge/Next.js-16.4-black?logo=next.js)](https://nextjs.org/)
+[![TypeScript](https://img.shields.io/badge/TypeScript-5.0-blue?logo=typescript)](https://www.typescriptlang.org/)
+[![Tailwind CSS](https://img.shields.io/badge/Tailwind-v4-06B6D4?logo=tailwindcss)](https://tailwindcss.com/)
+[![Supabase](https://img.shields.io/badge/Supabase-PostgreSQL-3ECF8E?logo=supabase)](https://supabase.com/)
+[![License](https://img.shields.io/badge/License-Commercial-gold)]()
 
-First, run the development server:
+**BUTELLA** — современный, элегантный интернет-магазин женской одежды для бутика в г. Кызылорда, Казахстан.
+Создан с акцентом на редакционную моду, высокую скорость на мобильных устройствах (трафик из Instagram), интуитивное управление товарами без необходимости редактировать код, и мгновенное управление заказами через Telegram.
 
+---
+
+## 🌟 Ключевые возможности
+
+### 👗 Для покупательниц:
+- **Эстетичный дизайн:** Теплая палитра (лен, шампань, золото, крем), изысканная типографика (*Playfair Display* & *Inter*), отсутствие перегруженных элементов.
+- **Мобильный шопинг:** Оптимизирован для посетительниц из Instagram.
+- **Интерактивный каталог:** Фильтрация по категориям (Платья, Костюмы, Верхняя одежда), размерам (`XS`, `S`, `M`, `L`, `XL`), наличию в Кызылорде и цене.
+- **Карточка товара:** Фотогалерея с зумом, живой остаток размеров (*«В наличии в бутике»* / *«Осталось мало»*), аккордеон с условиями примерки и доставки.
+- **Умная корзина:** Сохраняется при перезагрузке страницы, моментальный слайд-овер и страница корзины.
+- **Оформление заказа:** Выбор самовывоза в Кызылорде (бесплатно), курьера по городу или доставки по Казахстану (Казпочта / CDEK).
+- **Оплата через Kaspi:** Готовый QR-код, реквизиты и прямая кнопка для открытия приложения Kaspi.kz на смартфоне.
+- **Живое обновление статуса оплаты:** Экран заказа в реальном времени переключается на зеленый бейдж, как только владелец подтверждает оплату.
+
+### 💼 Для владельца бутика:
+- **Никаких сложных панелей:** Простая страница управления по адресу [`/manage`](http://localhost:3000/manage).
+- **Защита паролем:** Доступ только для владельца бутика по защищенному сессионному куки.
+- **Добавление моделей за 1 минуту:** Загрузка фотографий прямо с телефона/ПК, назначение цен в $\text{₸}$, выбор размеров и остатков.
+- **Мгновенное скрытие:** Переключатель «На сайте» $\leftrightarrow$ «Скрыт» в один клик.
+- **Карманный пульт в Telegram:** При каждом заказе бот присылает уведомление с товарами, телефоном и кнопками:
+  - `[✅ Подтвердить оплату Kaspi]`
+  - `[📦 В сборку]`
+  - `[🚚 Отправлен клиенту]`
+  - `[🎉 Заказ вручен]`
+  - `[❌ Отменить заказ]` *(с автоматическим возвратом вещей на склад бутика!)*
+
+---
+
+## 🛠 Технологический стек
+
+| Технология | Назначение |
+| :--- | :--- |
+| **Next.js 16 (App Router)** | Высокая скорость страниц, SEO и безопасный серверный бэкенд |
+| **TypeScript** | Строгая типизация и защита от ошибок в данных |
+| **Tailwind CSS v4** | Редакционный дизайн и легковесные стили |
+| **Supabase (PostgreSQL)** | База данных с Row Level Security (RLS) для защиты клиентов |
+| **Supabase Storage** | Облачное хранилище фотографий одежды |
+| **Telegram Bot API** | Мгновенные уведомления и удаленное управление статусами |
+| **Zod** | Валидация телефонов Казахстана и параметров заказов |
+| **Vercel** | Бесплатный и надежный хостинг с поддержкой SSL |
+
+---
+
+## 🚀 Быстрый запуск для разработки
+
+### 1. Клонирование и установка зависимостей
 ```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
+git clone https://github.com/your-username/butella.git
+cd butella
+npm install
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+### 2. Запуск локального сервера
+```bash
+npm run dev
+```
+Откройте в браузере:
+* Витрина магазина: [http://localhost:3000](http://localhost:3000)
+* Панель владельца: [http://localhost:3000/manage](http://localhost:3000/manage) *(пароль по умолчанию: `butella2026`)*
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+### 3. Запуск автоматических тестов
+```bash
+npm test
+```
+*Выполняет 23 автоматических теста: проверка цен, валидация номеров Казахстана, защита от ботов, токены безопасности.*
 
-## Learn More
+---
 
-To learn more about Next.js, take a look at the following resources:
+## ☁️ Подключение Supabase (База данных и фото)
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+1. Зарегистрируйтесь бесплатно на [supabase.com](https://supabase.com) и создайте новый проект.
+2. В боковом меню откройте **SQL Editor** и выполните по очереди файлы:
+   * [`supabase/migrations/001_initial_schema.sql`](supabase/migrations/001_initial_schema.sql) — создает таблицы, индексы, RLS-политики и хранилище фотографий.
+   * [`supabase/migrations/002_seed_initial_data.sql`](supabase/migrations/002_seed_initial_data.sql) — наполняет магазин стартовой коллекцией платьев и костюмов.
+3. В Supabase перейдите в **Project Settings $\rightarrow$ API** и скопируйте ключи в ваш `.env.local`:
+   ```env
+   NEXT_PUBLIC_SUPABASE_URL=https://ваш-проект.supabase.co
+   NEXT_PUBLIC_SUPABASE_ANON_KEY=ваш_публичный_ключ
+   SUPABASE_SERVICE_ROLE_KEY=ваш_секретный_ключ
+   ```
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+---
 
-## Deploy on Vercel
+## 🤖 Подключение Telegram-бота
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+1. Откройте Telegram и напишите боту `@BotFather`.
+2. Отправьте команду `/newbot`, укажите имя (например, `BUTELLA Boutique Bot`) и логин (например, `butella_orders_bot`).
+3. Полученный **токен** вставьте в `.env.local`:
+   ```env
+   TELEGRAM_BOT_TOKEN=123456789:ABCdefGhI...
+   ```
+4. Напишите боту `@userinfobot`, скопируйте ваш числовой **Id** (например, `987654321`) и укажите его:
+   ```env
+   TELEGRAM_OWNER_CHAT_ID=987654321
+   ```
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+---
+
+## 🌐 Деплой на Vercel
+
+1. Зарегистрируйтесь на [vercel.com](https://vercel.com) (через аккаунт GitHub).
+2. Нажмите **«Add New... $\rightarrow$ Project»** и выберите репозиторий `butella`.
+3. В разделе **Environment Variables** добавьте переменные из вашего `.env.local`.
+4. Нажмите **Deploy**. Через 60 секунд ваш сайт будет доступен в интернете!
+5. После деплоя перейдите по адресу `https://ваш-домен.vercel.app/api/telegram/setup` для автоматической активации вебхука Telegram.
+
+---
+
+## 📚 Дополнительная документация
+
+* 📖 **[DOCS_OWNER_RU.md](DOCS_OWNER_RU.md)** — Подробная инструкция для владельца бутика на русском языке (как добавлять товары, менять цены и принимать оплату).
+* 💻 **[CLAUDE.md](CLAUDE.md)** — Техническое руководство по архитектуре для разработчиков.
+* 📋 **[BRIEF.md](BRIEF.md)** — Исходное техническое задание проекта.
+
+---
+
+© 2026 BUTELLA Boutique. Все права защищены. Кызылорда, Казахстан.
