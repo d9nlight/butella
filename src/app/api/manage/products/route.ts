@@ -1,4 +1,4 @@
-import { NextRequest, NextResponse } from "next/server";
+  import { NextRequest, NextResponse } from "next/server";
 import { isAdminAuthenticated } from "@/lib/auth";
 import { isSupabaseConfigured, getAdminClient } from "@/lib/supabase/admin";
 import { MOCK_PRODUCTS } from "@/data/mock-products";
@@ -273,12 +273,13 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ success: true });
     }
   } catch (error: any) {
-    console.error("Save product error:", error);
-    return NextResponse.json(
-      { error: error?.message || "Ошибка при сохранении товара" },
-      { status: 500 }
-    );
-  }
+  console.error("FULL BACKEND ERROR:", JSON.stringify(error, Object.getOwnPropertyNames(error), 2));
+  console.error("RAW ERROR OBJECT:", error);
+  return NextResponse.json(
+    { error: error?.message || error?.details || "Internal Server Error" },
+    { status: 500 }
+  );
+}
 }
 
 export async function DELETE(req: NextRequest) {
