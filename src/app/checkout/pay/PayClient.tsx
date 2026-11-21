@@ -18,6 +18,7 @@ import {
   MessageCircle,
 } from "lucide-react";
 import { formatPrice } from "@/lib/utils";
+import { formatWhatsAppPrice } from "@/lib/whatsapp";
 
 interface OrderInfo {
   orderNumber: string;
@@ -75,9 +76,9 @@ export function PayClient() {
 
   // WhatsApp helper link
   const whatsappUrl = `https://wa.me/77779418188?text=${encodeURIComponent(
-    `Здравствуйте! Я оформил(а) заказ #${orderNumber} на сумму ${formatPrice(
+    `Здравствуйте! Я оформил(а) заказ #${orderNumber} на сумму ${formatWhatsAppPrice(
       totalAmount
-    )} и перевожу оплату на Kaspi (+7 705 392 0288).`
+    )}.`
   )}`;
 
   // 1. Fetch live order data from Supabase

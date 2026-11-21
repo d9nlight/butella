@@ -18,6 +18,7 @@ import {
   AlertCircle,
 } from "lucide-react";
 import { formatPrice } from "@/lib/utils";
+import { formatWhatsAppPrice } from "@/lib/whatsapp";
 
 interface OrderData {
   orderNumber: string;
@@ -305,7 +306,7 @@ function SuccessContent() {
         </Link>
         <a
           href={`https://wa.me/77779418188?text=${encodeURIComponent(
-            `Здравствуйте! Я оформил(а) заказ #${orderNumber} на сумму ${formatPrice(totalAmount)}.`
+            `Здравствуйте! Я оформил(а) заказ #${orderNumber} на сумму ${formatWhatsAppPrice(totalAmount)}.`
           )}`}
           target="_blank"
           rel="noopener noreferrer"

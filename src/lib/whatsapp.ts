@@ -1,5 +1,3 @@
-import { formatPrice } from "./utils";
-
 export const WHATSAPP_PHONE = "77779418188";
 export const WHATSAPP_DISPLAY_PHONE = "+7 (777) 941-81-88";
 
@@ -22,7 +20,18 @@ export interface WhatsAppOrderData {
 }
 
 /**
- * Creates a direct WhatsApp click-to-chat URL with a pre-filled, elegant order message.
+ * Formats price safely for WhatsApp without unsupported symbols (like ₸ or rare characters)
+ * that turn into  on older phones and Windows WhatsApp.
+ * Example: 28500 -> "28 500 тг."
+ */
+export function formatWhatsAppPrice(amount: number): string {
+  return `${amount.toString().replace(/\B(?=(\d{3})+(?!\d))/g, " ")} тг.`;
+}
+
+/**
+ * Creates a direct WhatsApp click-to-chat URL with a clean, bulleted order message.
+ * Uses 100% universally readable characters (standard text, simple dots/dashes)
+ * to prevent any  or broken font glyphs on any device or WhatsApp version.
  */
 export function createWhatsAppOrderLink(data: WhatsAppOrderData): string {
   const deliveryTitles: Record<string, string> = {
@@ -36,35 +45,35 @@ export function createWhatsAppOrderLink(data: WhatsAppOrderData): string {
   const itemsList = data.items
     .map(
       (item, idx) =>
-        `${idx + 1}. *${item.title}*\n   Размер: *${item.size}* | Цвет: ${item.color}\n   ${item.quantity} шт. × ${formatPrice(item.price)}`
+        `${idx + 1}. *${item.title}*\n   • Размер: *${item.size}* | Цвет: ${item.color}\n   • Количество: ${item.quantity} шт. × ${formatWhatsAppPrice(item.price)}`
     )
     .join("\n\n");
 
   const lines = [
-    "Здравствуйте! Хочу оформить заказ в бутик BUTELLA ✨",
+    "Здравствуйте! Хочу оформить заказ в бутик BUTELLA:",
     "",
-    "🛍 *Товары в заказе:*",
+    "*Товары в заказе:*",
     itemsList,
     "",
-    "━━━━━━━━━━━━━━━━━━",
-    `💰 *ИТОГО К ОПЛАТЕ:* *${formatPrice(data.totalAmount)}*`,
-    "━━━━━━━━━━━━━━━━━━",
+    "----------------------------------------",
+    `*ИТОГО К ОПЛАТЕ: ${formatWhatsAppPrice(data.totalAmount)}*`,
+    "----------------------------------------",
     "",
-    `👤 *Имя:* ${data.customerName}`,
+    `• Имя: ${data.customerName}`,
   ];
 
   if (data.customerPhone && data.customerPhone.trim()) {
-    lines.push(`📞 *Телефон:* ${data.customerPhone.trim()}`);
+    lines.push(`• Телефон: ${data.customerPhone.trim()}`);
   }
 
-  lines.push(`🚚 *Способ получения:* ${deliveryName}`);
+  lines.push(`• Способ получения: ${deliveryName}`);
 
   if (data.cityAddress && data.cityAddress.trim()) {
-    lines.push(`📍 *Город / Адрес:* ${data.cityAddress.trim()}`);
+    lines.push(`• Город / Адрес: ${data.cityAddress.trim()}`);
   }
 
   if (data.comment && data.comment.trim()) {
-    lines.push(`💬 *Комментарий:* ${data.comment.trim()}`);
+    lines.push(`• Комментарий: ${data.comment.trim()}`);
   }
 
   const message = lines.join("\n");
@@ -81,16 +90,16 @@ export function createWhatsAppProductLink(data: {
   price?: number;
 }): string {
   const lines = [
-    "Здравствуйте! Хочу заказать или примерить в бутике BUTELLA ✨",
+    "Здравствуйте! Хочу заказать или примерить в бутике BUTELLA:",
     "",
-    `👗 *Модель:* ${data.title}`,
+    `• Модель: *${data.title}*`,
   ];
 
-  if (data.size) lines.push(`📏 *Размер:* ${data.size}`);
-  if (data.color) lines.push(`🎨 *Цвет:* ${data.color}`);
-  if (data.price) lines.push(`💰 *Цена:* ${formatPrice(data.price)}`);
+  if (data.size) lines.push(`• Размер: *${data.size}*`);
+  if (data.color) lines.push(`• Цвет: ${data.color}`);
+  if (data.price) lines.push(`• Цена: *${formatWhatsAppPrice(data.price)}*`);
 
-  lines.push("", "Подскажите, есть ли в наличии?");
+  lines.push("", "Подскажите, пожалуйста, есть ли в наличии?");
 
   return `https://wa.me/${WHATSAPP_PHONE}?text=${encodeURIComponent(lines.join("\n"))}`;
 }
