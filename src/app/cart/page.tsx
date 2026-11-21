@@ -152,7 +152,7 @@ export default function CartPage() {
           </Link>
 
           <div className="text-[11px] text-neutral-500 font-light space-y-1 pt-2">
-            <p>✓ Оплата Kaspi QR, Kaspi Pay или наличными при получении</p>
+            <p>✓ Быстрое оформление и подтверждение заказа через WhatsApp</p>
             <p>✓ Возможность примерки перед покупкой в бутике (Кызылорда)</p>
           </div>
         </div>

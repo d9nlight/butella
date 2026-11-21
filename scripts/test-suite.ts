@@ -11,6 +11,7 @@ import { checkRateLimit } from "../src/lib/rate-limit";
 import { kaspiProvider } from "../src/lib/payments/kaspi";
 import { buildKaspiPaymentPayload, generateKaspiQrSvg } from "../src/lib/payments/qr";
 import { getOrderKeyboard } from "../src/lib/telegram/bot";
+import { createWhatsAppOrderLink, WHATSAPP_PHONE } from "../src/lib/whatsapp";
 
 let passed = 0;
 let failed = 0;
@@ -231,6 +232,27 @@ async function runTestSuite() {
     row.some((b) => b.callback_data === "pay_BUT-1001")
   );
   assert(paidKeyboard && payBtnRemoved, "Payment button is automatically hidden once order is PAID");
+
+  // 8. WhatsApp Direct Order Link
+  console.log("\n▶ TEST 8: WhatsApp Direct Order Link");
+  const waUrl = createWhatsAppOrderLink({
+    customerName: "Айгерим",
+    deliveryMethod: "local",
+    cityAddress: "г. Кызылорда, Абая 45",
+    items: [
+      {
+        title: "Шелковое платье «Aura»",
+        size: "S",
+        color: "Шампань",
+        quantity: 1,
+        price: 28500,
+      },
+    ],
+    totalAmount: 30000,
+  });
+  assert(waUrl.includes(WHATSAPP_PHONE), `WhatsApp URL directs to number ${WHATSAPP_PHONE}`);
+  assert(waUrl.includes("Aura"), "WhatsApp URL contains ordered product title");
+  assert(waUrl.includes("30"), "WhatsApp URL contains total order amount");
 
   console.log("\n=======================================================");
   console.log(`  TEST RESULTS: ${passed} PASSED, ${failed} FAILED`);

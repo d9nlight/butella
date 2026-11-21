@@ -264,10 +264,10 @@ export function ProductView({ product }: ProductViewProps) {
               )}`}
               target="_blank"
               rel="noopener noreferrer"
-              className="w-full border border-neutral-300 bg-white py-3 px-6 text-xs uppercase tracking-wider font-medium text-neutral-800 hover:border-black hover:bg-neutral-50 transition-colors flex items-center justify-center gap-2"
+              className="w-full bg-[#25D366] hover:bg-[#20ba59] text-white py-3.5 px-6 text-xs uppercase tracking-wider font-semibold transition-colors flex items-center justify-center gap-2 shadow-sm rounded-xs"
             >
-              <Phone className="w-4 h-4 text-emerald-600" />
-              <span>Заказать через WhatsApp / Kaspi</span>
+              <Phone className="w-4 h-4" />
+              <span>Заказать через WhatsApp (+7 777 941-81-88)</span>
             </a>
           </div>
 
@@ -276,7 +276,7 @@ export function ProductView({ product }: ProductViewProps) {
             <p>{product.description}</p>
           </div>
 
-          {/* Accordion: Delivery, Kaspi Payment, Boutique fitting */}
+          {/* Accordion: Delivery, Payment, Boutique fitting */}
           <div className="border-t border-[#E6DCD1] divide-y divide-[#E6DCD1] pt-2">
             {/* Delivery option */}
             <div>
@@ -311,7 +311,7 @@ export function ProductView({ product }: ProductViewProps) {
               >
                 <span className="flex items-center gap-2">
                   <CreditCard className="w-4 h-4 text-[#A0826C]" />
-                  <span>Оплата через Kaspi</span>
+                  <span>Оплата и заказ через WhatsApp</span>
                 </span>
                 <ChevronDown
                   className={`w-4 h-4 transition-transform duration-200 ${
@@ -321,8 +321,8 @@ export function ProductView({ product }: ProductViewProps) {
               </button>
               {activeAccordion === "payment" && (
                 <div className="pb-4 text-xs text-neutral-600 font-light space-y-1.5 leading-relaxed">
-                  <p>Принимаем оплату через <strong>Kaspi Pay, Kaspi Red и Kaspi QR</strong>.</p>
-                  <p>При оформлении заказа на сайте вы получите готовый QR-код и прямую ссылку для быстрой оплаты в приложении Kaspi.</p>
+                  <p>Оформление заказа происходит напрямую через <strong>WhatsApp менеджера (+7 777 941-81-88)</strong>.</p>
+                  <p>Оплата: наличными или переводом при получении, либо онлайн-переводом после согласования с менеджером в чате.</p>
                 </div>
               )}
             </div>

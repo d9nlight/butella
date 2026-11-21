@@ -35,12 +35,12 @@ export function Footer() {
 
           <div className="flex flex-col md:flex-row items-center gap-4">
             <div className="w-12 h-12 rounded-full bg-white/5 flex items-center justify-center shrink-0 text-[#C5A059]">
-              <CreditCard className="w-6 h-6 stroke-[1.5]" />
+              <Phone className="w-6 h-6 stroke-[1.5]" />
             </div>
             <div>
-              <h4 className="font-serif text-lg text-white">Kaspi Оплата</h4>
+              <h4 className="font-serif text-lg text-white">Заказ в WhatsApp</h4>
               <p className="text-xs text-neutral-400 mt-1 font-light">
-                Kaspi Pay, Kaspi Red, рассрочка и QR-код
+                Прямая связь с бутиком: +7 (777) 941-81-88
               </p>
             </div>
           </div>
