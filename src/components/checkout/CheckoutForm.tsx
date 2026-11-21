@@ -130,8 +130,15 @@ export function CheckoutForm({ deliveryOptions }: CheckoutFormProps) {
       setWhatsappUrl(url);
       clearCart();
 
-      // Open WhatsApp directly
-      window.location.href = url;
+      // Attempt opening in new window/tab, fallback to current window
+      try {
+        const win = window.open(url, "_blank");
+        if (!win || win.closed || typeof win.closed === "undefined") {
+          window.location.href = url;
+        }
+      } catch {
+        window.location.href = url;
+      }
     } catch {
       setError("Не удалось сформировать ссылку на WhatsApp");
       setSubmitting(false);
